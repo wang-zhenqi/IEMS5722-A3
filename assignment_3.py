@@ -4,7 +4,7 @@ from flask import jsonify
 import pymysql
 
 app = Flask(__name__)
-connection = pymysql.connect(host='47.115.63.44',
+connection = pymysql.connect(host='localhost',
                              user='zhenqi',
                              password='Jankee19920808',
                              db='iems5722',
@@ -83,5 +83,5 @@ def send_message():
     return jsonify(result)
 
 
-app.debug = True
-app.run()
+# app.debug = True
+# app.run()
