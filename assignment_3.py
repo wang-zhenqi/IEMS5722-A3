@@ -20,10 +20,12 @@ def hello_world():
 @app.route('/api/a3/get_chatrooms')
 def get_chatrooms():
     # Get the list of chat rooms from mysql.
+    result = {}
     with connection.cursor() as cur:
         cur.execute("SELECT * FROM chatrooms")
-        result = cur.fetchall()
-        print(result)
+        result["data"] = cur.fetchall()
+        result["status"] = "OK"
+        # print(result)
     return jsonify(result)
 
 
