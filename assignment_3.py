@@ -21,6 +21,7 @@ def hello_world():
 def get_chatrooms():
     # Get the list of chat rooms from mysql.
     result = {}
+    connection.ping(reconnect = True)
     with connection.cursor() as cur:
         cur.execute("SELECT * FROM chatrooms")
         result["data"] = cur.fetchall()
@@ -36,6 +37,7 @@ def get_messages():
     page = int(request.args.get('page'))
 
     result = {}
+    connection.ping(reconnect = True)
     with connection.cursor() as cur:
         query = "SELECT COUNT(`message`) FROM `messages` WHERE `chatroom_id` = %s"
         cur.execute(query, (chatroom_id,))
@@ -74,6 +76,7 @@ def send_message():
         result["status"] = "ERROR"
     else:
         result["status"] = "OK"
+        connection.ping(reconnect = True)
         with connection.cursor() as cur:
             query = "INSERT INTO `messages` (`chatroom_id`, `user_id`, `name`, `message`) VALUES (%s, %s, %s, %s)"
             cur.execute(query, (chatroom_id, user_id, name, message))
