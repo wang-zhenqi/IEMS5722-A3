@@ -24,6 +24,7 @@ def get_chatrooms():
     connection.ping(reconnect = True)
     with connection.cursor() as cur:
         cur.execute("SELECT * FROM chatrooms")
+        connection.commit()
         result["data"] = cur.fetchall()
         result["status"] = "OK"
         # print(result)
@@ -51,6 +52,7 @@ def get_messages():
             query = "SELECT `message`, `name`, `message_time`, `user_id` FROM `messages` WHERE `chatroom_id` = %s " \
                     "ORDER BY `message_time` DESC LIMIT %s, 5"
             cur.execute(query, (chatroom_id, (page - 1) * 5))
+            connection.commit()
             result["data"]["messages"] = []
             for m in cur.fetchall():
                 m["message_time"] = m["message_time"].strftime("%Y-%m-%d %H:%M")
@@ -80,8 +82,7 @@ def send_message():
         with connection.cursor() as cur:
             query = "INSERT INTO `messages` (`chatroom_id`, `user_id`, `name`, `message`) VALUES (%s, %s, %s, %s)"
             cur.execute(query, (chatroom_id, user_id, name, message))
-
-        connection.commit()
+            connection.commit()
 
     return jsonify(result)
 
