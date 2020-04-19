@@ -1,7 +1,9 @@
 from flask import Flask
 from flask import request
 from flask import jsonify
+from datetime import datetime
 import pymysql
+import requests
 
 app = Flask(__name__)
 connection = pymysql.connect(host='localhost',
@@ -71,6 +73,7 @@ def send_message():
     user_id = int(request.form.get("user_id", "-1"))
     name = request.form.get("name", "")
     message = request.form.get("message", "")
+    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
     result = {}
 
@@ -80,12 +83,18 @@ def send_message():
         result["status"] = "OK"
         connection.ping(reconnect = True)
         with connection.cursor() as cur:
-            query = "INSERT INTO `messages` (`chatroom_id`, `user_id`, `name`, `message`) VALUES (%s, %s, %s, %s)"
-            cur.execute(query, (chatroom_id, user_id, name, message))
+            query = "INSERT INTO `messages` (`chatroom_id`, `user_id`, `name`, `message`, `message_time`) VALUES (%s, %s, %s, %s, %s)"
+            cur.execute(query, (chatroom_id, user_id, name, message, timestamp))
             connection.commit()
+
+    reqJson = {'chatroom_id': chatroom_id, 'name': name, 'message': message, 'timestamp': timestamp}
+    r = requests.post(url = "http://localhost:8001/api/a4/broadcast_room", data = reqJson)
+    resp = r.text
+    print(resp, flush=True)
 
     return jsonify(result)
 
 
-# app.debug = True
-# app.run()
+if __name__ == '__main__':
+    app.debug = True
+    app.run(host='0.0.0.0', port=8000)
